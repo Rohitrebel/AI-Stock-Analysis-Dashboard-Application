@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stock Analysis</title>
+    <script
+      src="https://kit.fontawesome.com/ee52631823.js"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      type="text/javascript"
+      src="{{ url_for('static', filename='js/navbar.js') }}"
+      defer
+    ></script>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/styles.css') }}"
+    />
+    <script
+      src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.6.2/dist/dotlottie-wc.js"
+      type="module"
+    ></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script
+      type="text/javascript"
+      src="{{url_for('static', filename='js/update_input.js')}}"
+      defer
+    ></script>
+  </head>
+  <body>
+    <div class="bg-stock-container">
+      <nav class="navbar">
+        <div class="name-container">
+          <div class="name-logo">
+            <a href="{{ url_for('home') }}" class="name-logo-link">Y</a>
+          </div>
+          <h2 class="name-heading">StockYfy</h2>
+        </div>
+
+        <!-- Nav links -->
+        <div class="nav-items" id="nav-items">
+          <a href="{{ url_for('stock_analysis') }}" class="nav-item"
+            >Analyze Stocks</a
+          >
+
+          <a href="{{ url_for('summary') }}" class="nav-item"
+            >Performance Summary</a
+          >
+          <a href="{{ url_for('research') }}" class="nav-item"
+            >News Research Tool</a
+          >
+        </div>
+
+        <!-- Hamburger -->
+        <div class="bars-sm">
+          <div id="nav-bar" class="bars bars-sm">
+            <i class="fa-solid fa-bars"></i>
+          </div>
+          <div id="cross-bars-el" class="cross-bars">
+            <i
+              class="fa-solid fa-xmark fa-spin fa-spin-reverse"
+              style="color: #c81919"
+            ></i>
+          </div>
+        </div>
+      </nav>
+
+      <div class="Analysis-page-container">
+        <h1 class="stocks-cards-heading">Some popular stocks</h1>
+        <div class="stocks-cards-container">
+          <!-- CARDS -->
+          {%for stock in stock_cards %}
+          <div class="card-container">
+            <div class="card-container-upper">
+              <!-- ticker_content.ticker_color_logo[3] must be a valid CSS string like "background:#000;" -->
+              <div class="logo-name-container">
+                <div
+                  class="card-logo"
+                  style="{{ stock.ticker_content.ticker_color_logo[3] }}"
+                >
+                  {%if stock.card.ticker != 'TSLA' %}
+                  <i
+                    class="{{ stock.ticker_content.ticker_color_logo[0] }} {{ stock.ticker_content.ticker_color_logo[1] }} fa-xl"
+                    style="color: {{ stock.ticker_content.ticker_color_logo[2] }}"
+                  ></i>
+                  {%else%}
+                  <img
+                    src="https://img.icons8.com/?size=100&id=34784&format=png&color=000000"
+                    class="tata-logo"
+                  />
+                  {%endif%}
+                </div>
+                <h5 class="card-name">{{stock.card.ticker[0:5]}}.Inc</h5>
+              </div>
+
+              <div class="sparkline-graph">
+                <a href="{{ url_for('stream', ticker=stock.card.ticker) }}">
+                  <img
+                    src="{{ url_for('stream', ticker=stock.card.ticker) }}"
+                    class="stock-graph"
+                  />
+                </a>
+              </div>
+            </div>
+
+            <div class="price-container">
+              <div class="performance-card">
+                <p class="card-para-1">Current Price</p>
+                <p>
+                  {% if stock.card.price is not none %} {{ stock.card.price |
+                  round(2) }} {% else %} N/A {% endif %}
+                </p>
+              </div>
+
+              <div class="performance-card">
+                <p class="card-para-1">Growth</p>
+
+                <p class="growth-value">
+                  {% if stock.card.growth is not none %} {{ stock.card.growth |
+                  round(2) }} {% else %} {% endif %}
+                </p>
+                {% if stock.card.growth is not none %} {%if stock.card.growth >
+                0 %}
+                <div class="indicator-container">
+                  <i class="fa-solid fa-caret-up" style="color: #ffd43b"></i>
+                </div>
+
+                {%else%}
+                <div class="indicator-container">
+                  <i class="fa-solid fa-caret-down" style="color: #ff0000"></i>
+                </div>
+                {%endif%} {% else %} N/A {% endif %}
+              </div>
+            </div>
+          </div>
+          {%endfor%}
+        </div>
+        <div class="stocks-analysis-container">
+          <h2 class="returns-heading">Returns analyzer</h2>
+          <form
+            action="{{ url_for('analyze') }}"
+            method="POST"
+            class="returns-container"
+          >
+            <div class="returns-input-container">
+              <p class="returns-para">Enter a stock ticker to analyze*</p>
+              <input
+                type="text"
+                name="stock-name"
+                class="returns-input"
+                placeholder="Enter stock ticker"
+                required
+              />
+            </div>
+            <div class="returns-input-container">
+              <label for="amount" class="returns-para"
+                >Enter current amount invested (in Rs.)*</label
+              >
+              <div class="inc-dec-container">
+                <input
+                  type="text"
+                  name="amount"
+                  class="returns-input"
+                  placeholder="Enter amount"
+                  value="1000"
+                  min="0"
+                  required
+                />
+                <div class="plus-container" id="plus-con">
+                  <i class="fa-solid fa-plus"></i>
+                </div>
+                <div class="minus-container" id="minus-con">
+                  <i class="fa-solid fa-minus"></i>
+                </div>
+              </div>
+            </div>
+            <div class="returns-input-container">
+              <label for="shares" class="returns-para"
+                >Enter number of shares*</label
+              >
+              <div class="inc-dec-container">
+                <input
+                  type="text"
+                  name="shares"
+                  class="returns-input"
+                  placeholder="Enter shares"
+                  value="5"
+                  min="0"
+                  required
+                />
+                <div class="plus-container" id="plus-con">
+                  <i class="fa-solid fa-plus"></i>
+                </div>
+                <div class="minus-container" id="minus-con">
+                  <i class="fa-solid fa-minus"></i>
+                </div>
+              </div>
+            </div>
+            <div class="returns-input-container">
+              <label for="date-purchase" class="returns-para"
+                >Date of purchase*</label
+              >
+              <div class="inc-dec-container">
+                <input
+                  type="date"
+                  value="2025-08-25"
+                  name="date-purchase"
+                  class="returns-input"
+                  placeholder="Enter shares"
+                />
+                <div class="plus-container" id="plus-con">
+                  <i class="fa-solid fa-plus date-pur"></i>
+                </div>
+                <div class="minus-container" id="minus-con">
+                  <i class="fa-solid fa-minus date-pur"></i>
+                </div>
+              </div>
+            </div>
+            <div class="returns-input-container">
+              <label for="date-purchase" class="returns-para">Sell Date*</label>
+              <div class="inc-dec-container">
+                <input
+                  type="date"
+                  value="2025-08-26"
+                  name="date-sell"
+                  class="returns-input"
+                  placeholder="Enter shares"
+                />
+                <div class="plus-container" id="plus-con">
+                  <i class="fa-solid fa-plus date-pur"></i>
+                </div>
+                <div class="minus-container" id="minus-con">
+                  <i class="fa-solid fa-minus date-pur"></i>
+                </div>
+              </div>
+            </div>
+            <div class="submit-container">
+              <input
+                type="submit"
+                value="Submit"
+                name="submit"
+                class="submit-btn"
+                required
+              />
+            </div>
+          </form>
+        </div>
+        {%if graph_candle%}
+        <div class="returns-summary">
+          <h1>📊 Investment Summary</h1>
+          <div class="profit-loss-text">
+            Profit / Loss: {{ profit_loss }} ({{ profit_pct | round(2) }}%)
+          </div>
+        </div>
+        <div class="graphs-container">
+          {%if(graph_candle)%}
+          <div class="graphs">{{graph_candle | safe}}</div>
+          {%endif%} {%if(graph_ma)%}
+          <div class="graphs">{{graph_ma | safe}}</div>
+          {%endif%} {% if graph_ema %}
+          <div class="graphs">{{ graph_ema | safe }}</div>
+          {% endif %} {% if graph_rsi %}
+          <div class="graphs">{{ graph_rsi | safe }}</div>
+          {% endif %}
+        </div>
+        {%else%}
+        <div style="text-align: center"><h2>Sorry no Data Available</h2></div>
+        {%endif%}
+      </div>
+    </div>
+  </body>
+</html>

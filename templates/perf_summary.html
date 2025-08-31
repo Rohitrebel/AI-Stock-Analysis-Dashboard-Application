@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Performance Summary</title>
+    <script
+      src="https://kit.fontawesome.com/ee52631823.js"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      type="text/javascript"
+      src="{{ url_for('static', filename='js/navbar.js') }}"
+      defer
+    ></script>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/styles.css') }}"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script
+      type="text/javascript"
+      src="{{url_for('static', filename='js/summary.js')}}"
+    ></script>
+    <script
+      type="text/javascript"
+      src="{{url_for('static', filename='js/update_input.js')}}"
+    ></script>
+  </head>
+  <body>
+    <div class="perf-bg-container">
+      <nav class="navbar">
+        <div class="name-container">
+          <div class="name-logo">
+            <a href="{{ url_for('home') }}" class="name-logo-link">Y</a>
+          </div>
+          <h2 class="name-heading">StockYfy</h2>
+        </div>
+
+        <!-- Nav links -->
+        <div class="nav-items" id="nav-items">
+          <a href="{{ url_for('stock_analysis') }}" class="nav-item"
+            >Analyze Stocks</a
+          >
+
+          <a href="{{ url_for('summary') }}" class="nav-item"
+            >Performance Summary</a
+          >
+          <a href="{{ url_for('research') }}" class="nav-item"
+            >News Research Tool</a
+          >
+        </div>
+
+        <!-- Hamburger -->
+        <div class="bars-sm">
+          <div id="nav-bar" class="bars bars-sm">
+            <i class="fa-solid fa-bars"></i>
+          </div>
+          <div id="cross-bars-el" class="cross-bars">
+            <i
+              class="fa-solid fa-xmark fa-spin fa-spin-reverse"
+              style="color: #c81919"
+            ></i>
+          </div>
+        </div>
+      </nav>
+
+      <div class="perf-container">
+        <h1 class="perf-heading">Performance Summary</h1>
+        <h3 class="perf-sub-heading">
+          Enter the stock ticker of the required company to get the historical
+          data
+        </h3>
+        <form
+          action="{{url_for('summary')}}"
+          class="stock-ticker-perf-container"
+          method="POST"
+          id="ticker-submit-id"
+        >
+          <input
+            type="text"
+            placeholder="Enter the stock ticker"
+            class="ticker-input"
+            name="stock-ticker"
+          />
+
+          <div class="returns-input-container">
+            <label for="date-purchase" class="returns-para">Start Date*</label>
+            <div class="inc-dec-container">
+              <input
+                type="date"
+                value="2025-08-25"
+                name="start-date"
+                class="returns-input"
+                placeholder="Enter shares"
+              />
+              <div class="plus-container" id="plus-con">
+                <i class="fa-solid fa-plus date-pur"></i>
+              </div>
+              <div class="minus-container" id="minus-con">
+                <i class="fa-solid fa-minus date-pur"></i>
+              </div>
+            </div>
+          </div>
+          <div class="returns-input-container">
+            <label for="date-purchase" class="returns-para">End Date*</label>
+            <div class="inc-dec-container">
+              <input
+                type="date"
+                value="2025-08-26"
+                name="end-date"
+                class="returns-input"
+                placeholder="Enter shares"
+              />
+              <div class="plus-container" id="plus-con">
+                <i class="fa-solid fa-plus date-pur"></i>
+              </div>
+              <div class="minus-container" id="minus-con">
+                <i class="fa-solid fa-minus date-pur"></i>
+              </div>
+            </div>
+          </div>
+          <input
+            type="submit"
+            value="Submit"
+            class="submit-btn-tool"
+            name="submit-request"
+          />
+        </form>
+        <div id="downloadbtnContainer"></div>
+      </div>
+    </div>
+  </body>
+</html>

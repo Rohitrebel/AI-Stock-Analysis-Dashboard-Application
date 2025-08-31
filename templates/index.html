@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="{{url_for('static', filename='css/styles.css')}}"
+    />
+    <script
+      src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.6.2/dist/dotlottie-wc.js"
+      type="module"
+    ></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script
+      src="https://kit.fontawesome.com/ee52631823.js"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      type="text/javascript"
+      src="{{url_for('static', filename='js/navbar.js')}}"
+      defer
+    ></script>
+  </head>
+  <body>
+    <div class="bg-container">
+      <nav class="navbar">
+        <div class="name-container">
+          <div class="name-logo">
+            <a href="{{ url_for('home')}}" class="name-logo-link">Y</a>
+          </div>
+          <h2 class="name-heading">StockYfy</h2>
+        </div>
+
+        <!-- Nav links -->
+        <div class="nav-items" id="nav-items">
+          <a href="{{url_for('stock_analysis')}}" class="nav-item"
+            >Analyze Stocks</a
+          >
+          <a href="{{ url_for('summary') }}" class="nav-item"
+            >Performance Summary</a
+          >
+          <a href="{{ url_for('research') }}" class="nav-item"
+            >News Research Tool</a
+          >
+        </div>
+
+        <!-- Hamburger -->
+        <div class="bars-sm">
+          <div id="nav-bar" class="bars bars-sm">
+            <i class="fa-solid fa-bars"></i>
+          </div>
+          <div id="cross-bars-el" class="cross-bars">
+            <i
+              class="fa-solid fa-xmark fa-spin fa-spin-reverse"
+              style="color: #c81919"
+            ></i>
+          </div>
+        </div>
+      </nav>
+      <div class="hero-container">
+        <div class="hero-description">
+          <h1 class="hero-description-heading">StockYfy.</h1>
+          <p class="hero-description-content">
+            Your one place solution for stock analysis
+          </p>
+        </div>
+        <div class="hero-animation-character">
+          <dotlottie-wc
+            src="https://lottie.host/a0836dca-07ee-4fee-a81f-df2df7a8beba/Ph43cbXeDL.lottie"
+            style="width: 300px; height: 300px"
+            speed="1"
+            autoplay
+            loop
+          ></dotlottie-wc>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>News Research Tool</title>
+    <script
+      src="https://kit.fontawesome.com/ee52631823.js"
+      crossorigin="anonymous"
+    ></script>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/styles.css') }}"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script
+      type="text/javascript"
+      src="{{ url_for('static', filename='js/navbar.js') }}"
+      defer
+    ></script>
+    <script
+      type="text/javascript"
+      src="{{url_for('static', filename='js/research.js')}}"
+    ></script>
+    <script
+      type="text/javascript"
+      src="{{url_for('static', filename='js/prompttext.js')}}"
+    ></script>
+  </head>
+  <body>
+    <div class="research-tool-container">
+      <h1 class="research-heading">News Research Tool</h1>
+      <nav class="navbar">
+        <div class="name-container">
+          <div class="name-logo">
+            <a href="{{ url_for('home') }}" class="name-logo-link">Y</a>
+          </div>
+          <h2 class="name-heading">StockYfy</h2>
+        </div>
+
+        <!-- Nav links -->
+        <div class="nav-items" id="nav-items">
+          <a href="{{ url_for('stock_analysis') }}" class="nav-item"
+            >Analyze Stocks</a
+          >
+
+          <a href="{{ url_for('summary') }}" class="nav-item"
+            >Performance Summary</a
+          >
+          <a href="{{ url_for('research') }}" class="nav-item"
+            >News Research Tool</a
+          >
+        </div>
+
+        <!-- Hamburger -->
+        <div class="bars-sm">
+          <div id="nav-bar" class="bars bars-sm">
+            <i class="fa-solid fa-bars"></i>
+          </div>
+          <div id="cross-bars-el" class="cross-bars">
+            <i
+              class="fa-solid fa-xmark fa-spin fa-spin-reverse"
+              style="color: #c81919"
+            ></i>
+          </div>
+        </div>
+      </nav>
+      <div class="sidebar-main-container">
+        <div class="side-bar-container" id="side-bar-container">
+          <div class="select-container">
+            <label for="select-box" class="sidebar-heading"
+              >Select the type of data you want to enter:</label
+            >
+            <br />
+            <select id="select-box" class="select-dropdown">
+              <option value="csv">CSV Data</option>
+              <option value="text">Text Data</option>
+              <option value="url">URL Data</option>
+            </select>
+            <form
+              action="{{ url_for('research') }}"
+              method="POST"
+              class="type-container d-url-hide"
+              id="url-id"
+            >
+              <div class="type-input-container">
+                <h3>URL 1</h3>
+                <input
+                  type="text"
+                  placeholder="Enter URL here"
+                  class="url-input-el"
+                  name="url1"
+                />
+              </div>
+              <div class="url-input-container">
+                <h3>URL 2</h3>
+                <input
+                  type="text"
+                  placeholder="Enter URL here"
+                  class="url-input-el"
+                  name="url2"
+                />
+              </div>
+              <div class="url-input-container">
+                <h3>URL 3</h3>
+                <input
+                  type="text"
+                  placeholder="Enter URL here"
+                  class="url-input-el"
+                  name="url3"
+                />
+              </div>
+              <input
+                type="submit"
+                class="submit-btn-tool"
+                name="url-analyze"
+                value="Submit"
+                id="url-submit"
+              />
+            </form>
+            <form
+              action="{{ url_for('research')}}"
+              method="POST"
+              enctype="multipart/form-data"
+              class="type-container d-csv-hide"
+              id="csv-id"
+            >
+              <h3>Upload a CSV file:</h3>
+              <input type="file" name="fileUpload" style="margin: 0" />
+              <input
+                type="submit"
+                class="submit-btn-tool"
+                name="csv-analyze"
+                value="Submit"
+              />
+            </form>
+            <form method="POST" class="type-container d-text-hide" id="text-id">
+              <h3>Paste the Text here:</h3>
+              <textarea
+                rows="5"
+                cols="30"
+                name="text"
+                class="input-el-type"
+                placeholder="Paste the text here"
+              ></textarea>
+              <input
+                type="submit"
+                class="submit-btn-tool"
+                name="text-analyze"
+                value="Submit"
+              />
+            </form>
+          </div>
+        </div>
+
+        <div class="main-container" id="main-container">
+          <h1 style="text-align: center">Query Box</h1>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
