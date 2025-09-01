@@ -18,7 +18,7 @@ from llama_cpp import Llama
 app = Flask(__name__)
 
 today = date.today()
-yesterday = today - timedelta(days=1)
+yesterday = today - timedelta(days=5)
 
 # Globals to store index + raw data
 faiss_index = None
@@ -42,10 +42,12 @@ ticker_logo = {
 }
 
 def get_stock_data(ticker):
+    global today, yesterday
+
     if not ticker:
         ticker = "AAPL"
     stock_ticker = yf.Ticker(ticker)
-    history = stock_ticker.history(start=yesterday, end=today, interval="30m", prepost=True)
+    history = stock_ticker.history(start=yesterday, end=today, interval="1d", prepost=True)
     if history is None or history.empty:
         close_value = None
         growth = None
