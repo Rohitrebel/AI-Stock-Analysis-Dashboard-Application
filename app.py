@@ -15,6 +15,7 @@ from datetime import date, timedelta
 from io import StringIO
 from llama_cpp import Llama
 import os
+from dotenv import load_dotenv
 
 app = Flask(__name__)
 
@@ -28,11 +29,12 @@ csv_file = None
 ticker= None
 encoder = SentenceTransformer("all-mpnet-base-v2")
 
-llm = Llama.from_pretrained(
-	repo_id="bartowski/Llama-3.2-3B-Instruct-GGUF",
-	filename="Llama-3.2-3B-Instruct-IQ3_M.gguf",     
-  n_threads=4
-)
+load_dotenv()
+
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
+if OPENAI_API_KEY is None:
+  raise ValueError("OpenAI API key not found in .env file")
 
 
 ticker_logo = {
@@ -370,6 +372,25 @@ def research():
   return render_template("research.html")
 
 
+def get_response(user_input):
+  url = "https://openrouter.ai/api/v1/chat/completions"
+  headers = {
+    "Authorization": "Bearer {}".format(OPENAI_API_KEY),
+    "Content-Type": "application/json"
+  }
+
+  body = {
+    "model": "mistralai/mistral-7b-instruct",
+    "messages": [
+      {"role": "system", "content": "You are a financial research assistant.Your job is to explain financial news clearly and factually. Base your answer ONLY on the context given. If the context does not contain enough information to answer, say: I don’t know based on the given data. When explaining: - Answer the query of the user clearly. - Summarize Clearly.- Mention important numbers and company names. - Avoid copying raw sentences from context. Rewrite in natural English."},
+      {"role": "user", "content": user_input}
+    ],
+  }
+
+  response = requests.post(url, headers=headers, json=body)
+  return response.json()["choices"][0]["message"]["content"]
+
+
 @app.route("/continueprocess", methods=["POST"])
 def continueurl():
   global faiss_index, retrieved_info, encoder, llm
@@ -391,18 +412,7 @@ def continueurl():
   # Build context for LLM
   context = "\n".join(results)
   prompt = f"""
-You are a financial research assistant.
 
-Your job is to explain financial news clearly and factually. 
-Base your answer ONLY on the context below. 
-If the context does not contain enough information to answer, say:
-"I don’t know based on the given data."
-
-When explaining:
-- Answer the query of the user clearly.
-- Summarize the key reason for the event.
-- Mention important numbers and company names.
-- Avoid copying raw sentences from context. Rewrite in natural English.
 Context:
 {context}
 
@@ -410,14 +420,7 @@ Question: {query}
 
 Answer:
 """
-  response = llm(
-    prompt,
-    max_tokens=1000,      
-    temperature=0.0,
-    top_k=0,
-    top_p=1.0,
-    echo=False
-)
+  response = get_response(prompt)
   answer = response['choices'][0]['text']
 
   return jsonify({"answer": answer})
