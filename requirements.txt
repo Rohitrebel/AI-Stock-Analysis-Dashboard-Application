@@ -1,0 +1,14 @@
+Flask
+yfinance
+pandas
+matplotlib
+plotly
+numpy
+langchain
+langchain-community
+sentence-transformers
+faiss-cpu
+llama-cpp-python
+python-dotenv
+requests
+unstructured
