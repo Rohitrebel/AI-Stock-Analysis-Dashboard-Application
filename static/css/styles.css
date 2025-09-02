@@ -107,7 +107,7 @@ button:hover {
 
 .name-logo-link {
   text-decoration: none;
-  color: rgba(159, 134, 255, 0.71);
+  color: rgb(255 255 255);
 }
 
 @keyframes name-logo-trans {
@@ -569,7 +569,8 @@ button:hover {
 .ticker-input {
   width: 100%;
   border-radius: 10px;
-  border: none;
+  background-color: #c8b5b5;
+  border: 2px solid palevioletred;
 }
 
 .perf-container {
