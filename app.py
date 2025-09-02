@@ -182,7 +182,7 @@ def analyze():
                         stock_cards=stock_cards,
                         graph="<p>Sorry! Data Not Available for the given range.</p>",  submitted=True)
 
-        # dataframe preparation
+    # dataframe preparation
     df = history_data.reset_index().dropna(subset=['Close']).copy()
     # ensure Date column is datetime and sorted
     df['Date'] = pd.to_datetime(df['Date'])
