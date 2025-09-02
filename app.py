@@ -420,8 +420,8 @@ Question: {query}
 
 Answer:
 """
-  response = get_response(prompt)
-  answer = response['choices'][0]['text']
+  answer = get_response(prompt)
+  
 
   return jsonify({"answer": answer})
 
