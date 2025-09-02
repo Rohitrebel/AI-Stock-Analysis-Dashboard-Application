@@ -123,6 +123,7 @@ button:hover {
   color: rgb(0 255 61 / 73%);
   align-self: center;
   animation: name-heading-trans 1s ease-out forwards;
+  cursor: pointer;
 }
 
 @keyframes name-heading-trans {
