@@ -152,8 +152,7 @@
                 type="text"
                 name="stock-name"
                 class="returns-input"
-                placeholder="Enter stock ticker"
-                value="Eg. AAPL"
+                placeholder="Eg. AAPL"
                 required
               />
             </div>
@@ -251,9 +250,17 @@
         {%if graph_candle%}
         <div class="returns-summary">
           <h1>📊 Investment Summary</h1>
+          {% if profit_pct | round(2) > 0 %}
           <div class="profit-loss-text">
-            Profit / Loss: {{ profit_loss }} ({{ profit_pct | round(2) }}%)
+            You have incurred profits!! Profit Amount: {{ profit_loss }} ({{
+            profit_pct | round(2) }}%)
           </div>
+          {%else%}
+          <div class="profit-loss-text loss-color">
+            You Have Incurred a Loss! Loss Amount: {{ profit_loss }} ({{
+            profit_pct | round(2) }}%)
+          </div>
+          {%endif%}
         </div>
         <div class="graphs-container">
           {%if(graph_candle)%}
