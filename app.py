@@ -421,7 +421,6 @@ Question: {query}
 Answer:
 """
   answer = get_response(prompt)
-  
 
   return jsonify({"answer": answer})
 
