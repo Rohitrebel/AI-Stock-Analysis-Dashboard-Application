@@ -356,6 +356,9 @@ button:hover {
   border-radius: 15px;
   border: 1px solid #ffffff7f;
 }
+::placeholder {
+  color: whitesmoke;
+}
 
 .returns-input-container {
   display: flex;
