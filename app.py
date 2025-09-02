@@ -16,6 +16,7 @@ from io import StringIO
 from llama_cpp import Llama
 import os
 from dotenv import load_dotenv
+import requests
 
 app = Flask(__name__)
 
@@ -335,7 +336,10 @@ def research():
         return jsonify({"status": "error", "message": "No file uploaded"}), 400
 
       df = pd.read_csv(csv_file)
-      text = " ".join(df.astype(str).agg(" ".join, axis=1).tolist())
+      
+
+      text = "\n".join(df.astype(str).agg(" ".join, axis=1).tolist())
+      text = f"{ticker}_stock_data\n" + text 
 
     elif request.form.get("text-analyze"):
       text = request.form.get("text")
