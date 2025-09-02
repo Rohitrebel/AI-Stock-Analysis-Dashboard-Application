@@ -86,7 +86,7 @@ button:hover {
 
 /* Logo + heading */
 .name-logo {
-  background-color: rgba(255, 6, 81, 0.59);
+  background-color: #cff1d04a;
   width: 45px;
   height: 45px;
   align-self: center;
