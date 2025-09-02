@@ -226,7 +226,7 @@ def analyze():
     )])
     fig_candle.update_layout(title=f"{ticker.upper()} Candlestick Chart",
               xaxis_rangeslider_visible=False,
-              template='plotly_white', autosize=True)
+              template='plotly_white',width=900, autosize=False)
 
     # Moving averages (SMA) chart
     fig_ma = go.Figure()
@@ -234,28 +234,28 @@ def analyze():
     fig_ma.add_trace(go.Scatter(x=df['Date'], y=df['MA20'], mode='lines', name="MA20"))
     fig_ma.add_trace(go.Scatter(x=df['Date'], y=df['MA50'], mode='lines', name="MA50"))
     fig_ma.add_trace(go.Scatter(x=df['Date'], y=df['MA200'], mode='lines', name="MA200"))
-    fig_ma.update_layout(title=f"{ticker.upper()} SMA 20/50/200", template='plotly_white', autosize=True)
+    fig_ma.update_layout(title=f"{ticker.upper()} SMA 20/50/200", template='plotly_white', width=900, autosize=False)
 
     # EMA chart
     fig_ema = go.Figure()
     fig_ema.add_trace(go.Scatter(x=df['Date'], y=df['Close'], mode='lines', name='Close'))
     fig_ema.add_trace(go.Scatter(x=df['Date'], y=df['EMA20'], mode='lines', name='EMA20'))
     fig_ema.add_trace(go.Scatter(x=df['Date'], y=df['EMA50'], mode='lines', name='EMA50'))
-    fig_ema.update_layout(title=f"{ticker.upper()} EMA 20 & 50", template='plotly_white', autosize=True)
+    fig_ema.update_layout(title=f"{ticker.upper()} EMA 20 & 50", template='plotly_white', width=900, autosize=False)
 
     # RSI chart
     fig_rsi = go.Figure()
     fig_rsi.add_trace(go.Scatter(x=df['Date'], y=df['RSI'], mode='lines', name='RSI'))
     fig_rsi.add_hline(y=70, line_dash="dot", line_color="red")
     fig_rsi.add_hline(y=30, line_dash="dot", line_color="green")
-    fig_rsi.update_layout(title=f"{ticker.upper()} RSI (14)", template='plotly_white', autosize=True)
+    fig_rsi.update_layout(title=f"{ticker.upper()} RSI (14)", template='plotly_white', width=900, autosize=False)
 
     # Bollinger bands
     fig_bb = go.Figure()
     fig_bb.add_trace(go.Scatter(x=df['Date'], y=df['Close'], mode='lines', name='Close'))
     fig_bb.add_trace(go.Scatter(x=df['Date'], y=df['BB_Upper'], mode='lines', name='BB Upper'))
     fig_bb.add_trace(go.Scatter(x=df['Date'], y=df['BB_Lower'], mode='lines', name='BB Lower'))
-    fig_bb.update_layout(title=f"{ticker.upper()} Bollinger Bands", template='plotly_white', autosize=True)
+    fig_bb.update_layout(title=f"{ticker.upper()} Bollinger Bands", template='plotly_white', width=900, autosize=False)
 
 
     # --- profit / loss calculation: use nearest available rows (safer approach) ---
