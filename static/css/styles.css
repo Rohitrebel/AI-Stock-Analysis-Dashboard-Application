@@ -545,6 +545,7 @@ button:hover {
   align-items: center;
   background-color: lightgoldenrodyellow;
   border-radius: 20px;
+  padding: 20px;
 }
 
 .perf-bg-container {
