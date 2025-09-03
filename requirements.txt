@@ -12,3 +12,4 @@ llama-cpp-python
 python-dotenv
 requests
 unstructured
+gunicorn
