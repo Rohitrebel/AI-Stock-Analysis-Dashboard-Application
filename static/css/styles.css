@@ -407,6 +407,7 @@ button:hover {
   border-radius: 10px;
   width: 80px;
   height: 40px;
+  cursor: pointer;
 }
 .submit-container {
   align-self: center;

@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: stock-analyzer
+    env: python
+    plan: free # change to 'starter' or 'standard' if you upgrade later
+    buildCommand: |
+      pip install --upgrade pip
+      pip install -r requirements.txt --no-cache-dir
+    startCommand: gunicorn app:app --workers=1 --threads=1 --timeout=120
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10
+      - key: TOKENIZERS_PARALLELISM
+        value: "false"
+      - key: OPENAI_API_KEY
+        sync: false # set securely in Render Dashboard
