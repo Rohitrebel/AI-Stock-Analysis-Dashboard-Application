@@ -1,16 +1,14 @@
 import os
 from io import BytesIO, StringIO
 from datetime import date, timedelta
-from functools import lru_cache
 from dotenv import load_dotenv
 from flask import Flask, render_template, request, send_file, jsonify, Response
 
-# Keep these two light imports at top
+# Keeping two light imports at top
 import numpy as np
 import faiss
 
-# Keep tokenizers quiet & a bit leaner
-os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
+
 
 app = Flask(__name__)
 
@@ -21,7 +19,7 @@ csv_file = None
 ticker = None
 
 # Config
-MODEL_NAME = os.getenv("EMBEDDING_MODEL", "all-MiniLM-L6-v2")  # smaller than mpnet
+load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 # Simple UI assets
@@ -37,11 +35,30 @@ def _today_yesterday(days_back=5):
   yesterday = today - timedelta(days=days_back)
   return today, yesterday
 
-@lru_cache(maxsize=1)
-def get_encoder():
-  # Lazy-load the sentence transformer (saves ~200–400MB at boot)
-  from sentence_transformers import SentenceTransformer
-  return SentenceTransformer(MODEL_NAME)  # all-MiniLM-L6-v2 by default
+def embed_document(text: str):
+  """Embed a document/chunk for retrieval."""
+  import cohere
+  COHERE_API_KEY = os.getenv("COHERE_API_KEY")
+  co = cohere.Client(COHERE_API_KEY)
+  resp = co.embed(
+    model="embed-english-v3.0",
+    texts=[text],
+    input_type="search_document"
+  )
+  return np.array(resp.embeddings[0], dtype="float32")
+
+def embed_query(query: str):
+  """Embed a user query for searching against docs."""
+  import cohere
+  COHERE_API_KEY = os.getenv("COHERE_API_KEY")
+  co = cohere.Client(COHERE_API_KEY)
+  resp = co.embed(
+    model="embed-english-v3.0",
+    texts=[query],
+    input_type="search_query"
+  )
+  return np.array(resp.embeddings[0], dtype="float32")
+
 
 def get_stock_data(ticker_in):
   # Lazy imports for heavy libs
@@ -307,19 +324,41 @@ def research():
   global faiss_index, retrieved_info, ticker
 
   if request.method == "POST":
-    # Lazy import heavy langchain only if needed
-    from langchain_community.document_loaders import UnstructuredURLLoader
     from langchain.text_splitter import RecursiveCharacterTextSplitter
     import pandas as pd
+    import requests                     
+    from bs4 import BeautifulSoup        
+    import re                            
 
+    # ---- Collect input ----
     if request.form.get("url-analyze"):
       urls = [request.form.get("url1"), request.form.get("url2"), request.form.get("url3")]
       urls = [u for u in urls if u]
       if not urls:
         return jsonify({"status": "error", "message": "No URLs provided"}), 400
-      loader = UnstructuredURLLoader(urls)
-      data = loader.load()
-      text = " ".join([d.page_content for d in data])
+
+      # ---- Heuristic cleaning with BeautifulSoup ----
+      all_text = []
+      for url in urls:
+        try:
+          html = requests.get(url, timeout=10).text
+          soup = BeautifulSoup(html, "html.parser")
+
+          paragraphs = []
+          for p in soup.find_all("p"):
+            text = p.get_text(" ", strip=True)
+            if len(text.split()) > 20 and not re.search(
+              r"(advertise|cookie|subscribe|login|terms|policy|privacy|support)",
+              text.lower()
+            ):
+              paragraphs.append(text)
+
+          if paragraphs:
+            all_text.append(" ".join(paragraphs))
+        except Exception as e:
+          print(f"Failed to process {url}: {e}")
+
+      text = " ".join(all_text)
 
     elif request.form.get("csv-analyze"):
       csv_up = request.files.get("fileUpload")
@@ -336,14 +375,16 @@ def research():
     else:
       return jsonify({"status": "error", "message": "No valid input type"}), 400
 
-    # Split & embed
-    splitter = RecursiveCharacterTextSplitter(separators=["\n\n", "\n", " "], chunk_size=400, chunk_overlap=100)
+    # ---- Split text into chunks ----
+    splitter = RecursiveCharacterTextSplitter(
+      separators=["\n\n", "\n", " "], chunk_size=400, chunk_overlap=100
+    )
     chunks = splitter.split_text(text)
     if not chunks:
       return jsonify({"status": "error", "message": "No valid text to process"}), 400
 
-    encoder = get_encoder()
-    vectors = encoder.encode(chunks, convert_to_numpy=True)
+    # ---- Embed using Cohere + store in FAISS ----
+    vectors = np.array([embed_document(chunk) for chunk in chunks])
     dim = vectors.shape[1]
     index = faiss.IndexFlatL2(dim)
     index.add(vectors)
@@ -354,10 +395,11 @@ def research():
 
   return render_template("research.html")
 
-def get_response(user_input):
+
+def get_response(context, user_input):
   load_dotenv()
   OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-  
+
   if not OPENAI_API_KEY:
     return "OpenAI API key not configured on server."
 
@@ -368,11 +410,12 @@ def get_response(user_input):
     "model": "mistralai/mistral-7b-instruct",
     "messages": [
       {"role": "system", "content": "You are a financial research assistant. Your job is to explain financial news clearly and factually. Base your answer ONLY on the context given. If the context does not contain enough information to answer, say: I don’t know based on the given data. When explaining: - Answer the query clearly. - Summarize clearly. - Mention important numbers and company names. - Avoid copying raw sentences from context. Rewrite in natural English."},
+      {"role": "system", "content": f"Context:\n{context}"}, 
       {"role": "user", "content": user_input},
     ],
   }
   try:
-    resp = requests.post(url, headers=headers, json=body, timeout=60)
+    resp = requests.post(url, headers=headers, json=body, timeout=80)
     resp.raise_for_status()
     return resp.json()["choices"][0]["message"]["content"]
   except Exception as e:
@@ -392,16 +435,24 @@ def continueurl():
   query = data.get("userPrompt", "")
 
   try:
-    encoder = get_encoder()
-    query_vec = encoder.encode([query], convert_to_numpy=True).reshape(1, -1)
+    # ---- Embed query ----
+    query_vec = embed_query(query).reshape(1, -1)
+
+    # ---- Search FAISS ----
     distances, indices = faiss_index.search(query_vec, k=3)
     results = [retrieved_info[i] for i in indices[0]]
-    context = "\n".join(results)
-    prompt = f"Context:\n{context}\n\nQuestion: {query}\n\nAnswer:"
-    answer = get_response(prompt)
+    cleaned = [r for r in results if len(r.split()) > 15 and "advertise" not in r.lower()]
+    print("Retrieved results:", results)
+
+    # ---- Build context ----
+    context = "\n".join(cleaned)
+    # ---- Call your existing response function ----
+    answer = get_response(context, query)
+
     return jsonify({"answer": answer})
   except Exception as e:
     return jsonify({"error": f"Failed to process: {e}"}), 500
+
 
 @app.route("/performance-summary", methods=["GET", "POST"], endpoint="summary")
 def summary():
