@@ -2,7 +2,7 @@ services:
   - type: web
     name: stock-analyzer
     runtime: python
-    pythonVersion: 3.11.9
+    pythonVersion: 3.11
     plan: free # upgrade to starter/standard if OOM continues
     buildCommand: |
       pip install --upgrade pip setuptools wheel
