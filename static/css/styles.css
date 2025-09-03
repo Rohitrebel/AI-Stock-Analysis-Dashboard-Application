@@ -191,7 +191,7 @@ button:hover {
     rgba(185, 152, 33, 0.8),
     rgba(37, 37, 225, 0.8)
   );
-  min-height: 350vh;
+  min-height: 490vh;
   height: fit-content;
   overflow: hidden;
   transition: all 0.3s ease-in-out;

@@ -48,7 +48,7 @@
           >
 
           <a href="{{ url_for('summary') }}" class="nav-item"
-            >Performance History</a
+            >Performance Statistics</a
           >
           <a href="{{ url_for('research') }}" class="nav-item"
             >News Research Tool</a
@@ -271,6 +271,8 @@
           <div class="graphs">{{ graph_ema | safe }}</div>
           {% endif %} {% if graph_rsi %}
           <div class="graphs">{{ graph_rsi | safe }}</div>
+          {% endif %} {% if graph_bb %}
+          <div class="graphs">{{ graph_bb | safe }}</div>
           {% endif %}
         </div>
         {%else%}

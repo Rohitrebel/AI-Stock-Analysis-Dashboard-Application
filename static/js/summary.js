@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
               downloadRequestEl.innerHTML = `
                 <form action="/performance-summary" method="POST">
                   <input type="hidden" name="download-request" value="1" />
-                  <button type="submit" class="submit-btn-tool download-csv-btn">Download CSV</button>
+                  <button type="submit" class="submit-btn-tool download-csv-btn">Download Data</button>
                 </form>
               `;
             }

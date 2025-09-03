@@ -15,8 +15,8 @@ app = Flask(__name__)
 # --------- Globals kept minimal ---------
 faiss_index = None
 retrieved_info = None
-csv_file = None
 ticker = None
+excel_file = None
 
 # Config
 load_dotenv()
@@ -458,10 +458,13 @@ def continueurl():
 def summary():
   import yfinance as yf
   import pandas as pd
+  import numpy as np
+  from io import BytesIO
+  from flask import Response, jsonify, render_template, request
 
   if request.method == "POST":
     if request.form.get("submit-request"):
-      global csv_file, ticker
+      global excel_file, ticker
       ticker = request.form.get("stock-ticker")
       start_date = request.form.get("start-date")
       end_date = request.form.get("end-date")
@@ -469,21 +472,52 @@ def summary():
       stock_ticker = yf.Ticker(ticker)
       history_data = stock_ticker.history(start=start_date, end=end_date, interval="1d")
 
-      df = pd.DataFrame(history_data).reset_index()
-      csv_buffer = StringIO()
-      df.to_csv(csv_buffer, index=False)
-      csv_buffer.seek(0)
-      csv_file = csv_buffer.getvalue()
+      df = pd.DataFrame(history_data).reset_index().dropna(subset=["Close"]).copy()
+      df["Date"] = pd.to_datetime(df["Date"]).dt.tz_localize(None).dt.date
+      df.sort_values("Date", inplace=True)
+      df.reset_index(drop=True, inplace=True)
+
+      # --- Technical Indicators ---
+      df["Daily Return"] = df["Close"].pct_change()
+      df["Cumulative Return"] = (1 + df["Daily Return"]).cumprod()
+
+      df["MA20"] = df["Close"].rolling(20, min_periods=1).mean()
+      df["MA200"] = df["Close"].rolling(200, min_periods=1).mean()
+
+      df["EMA20"] = df["Close"].ewm(span=20, adjust=False).mean()
+      df["EMA50"] = df["Close"].ewm(span=50, adjust=False).mean()
+
+      delta = df["Close"].diff()
+      gain = delta.where(delta > 0, 0.0)
+      loss = -delta.where(delta < 0, 0.0)
+      roll_up = gain.rolling(14, min_periods=1).mean()
+      roll_down = loss.rolling(14, min_periods=1).mean()
+      RS = roll_up / (roll_down.replace(0, np.nan))
+      df["RSI"] = 100 - (100 / (1 + RS))
+      df["RSI"] = df["RSI"].fillna(50)
+
+      # --- Remove useless all-zero columns ---
+      df = df.loc[:, (df != 0).any(axis=0)]
+
+      # --- Save Excel to memory ---
+      output = BytesIO()
+      with pd.ExcelWriter(output, engine="openpyxl") as writer:
+          df.to_excel(writer, index=False, sheet_name="PerformanceSummary")
+      output.seek(0)
+      excel_file = output.getvalue()
+
       return jsonify({"status": "done"})
 
     elif request.form.get("download-request"):
       return Response(
-          csv_file,
-          mimetype="text/csv",
-          headers={"Content-Disposition": f"attachment;filename={ticker or 'ticker'}_data.csv"},
+        excel_file,
+        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f"attachment;filename={ticker or 'ticker'}_data.xlsx"},
       )
 
   return render_template("perf_summary.html")
+
+
 
 if __name__ == "__main__":
   port = int(os.environ.get("PORT", 5000))

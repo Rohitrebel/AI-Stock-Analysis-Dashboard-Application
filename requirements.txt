@@ -11,4 +11,5 @@ requests
 beautifulsoup4
 lxml
 langchain
+openpyxl
 gunicorn

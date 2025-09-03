@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Performance History</title>
+    <title>Performance Statistics</title>
     <script
       src="https://kit.fontawesome.com/ee52631823.js"
       crossorigin="anonymous"
@@ -47,7 +47,7 @@
           >
 
           <a href="{{ url_for('summary') }}" class="nav-item"
-            >Performance History</a
+            >Performance Statistics</a
           >
           <a href="{{ url_for('research') }}" class="nav-item"
             >News Research Tool</a
@@ -72,7 +72,7 @@
         <h1 class="perf-heading">Company Performance Data</h1>
         <h3 class="perf-sub-heading">
           Enter the stock ticker of the required company to get the historical
-          data
+          data and Stats
         </h3>
         <form
           action="{{url_for('summary')}}"
